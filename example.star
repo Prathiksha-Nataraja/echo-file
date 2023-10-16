@@ -54,55 +54,53 @@
 #       name: employee_ids
 #       input_args: 
 
+const = const (
+        api_host = "http://127.0.0.1:7890",
+        auth_token = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP",
+        insecure = "true",
+        namespace = "guest"
+    )
 
-const = Const {
-    api_host = "http://127.0.0.1:7890",
-    auth_token = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP",
-    insecure = "true",
-    namespace = "guest"
-}
+def run (plan,args):
+    
+    task1 = task1 (
+        kind = "openwhisk",
+        name = "employee_ids",
+        input_args = {
+            "name" : "role",
+            "name_type" : "String"
+        },
+        output_args = {
+            "name" : "ids",
+            "name_type" : "Vec<i32>"
+        },
+        properties = const,
+        depends_on = "null"
 
-task1 = Task_1 {
-    kind = "openwhisk",
-    name = "employee_ids",
-    input_args = {
-        name : "role",
-        name_type : "String"
-    },
-    output_args = {
-        name : "ids",
-        name_type : "Vec<i32>"
-    },
-    properties : const,
-    depends_on : null
+    )
 
-}
+    task2 = task2 (
+        kind = "openwhisk",
+        name = "getsalaries",
+        input_args = {
+            "name" : "id",
+            "name_type" : "i32"
+        },
+        output_args = {
+            "name" : "salary",
+            "name_type" : "i32"
+        },
+        properties = const,
+        depends_on = {
+            "operation" : "map",
+            "task" : {
+                "name" : task1.name,
+                "fields" : task1.output_args.name
+            }
+        },
 
-task2 = Task_2 {
-    kind = "openwhisk",
-    name = "getsalaries",
-    input_args = {
-        name : "id",
-        name_type : "i32"
-    },
-    output_args = {
-        name : "salary",
-        name_type : "i32"
-    },
-    properties : const,
-    depends_on = {
-        operation : "map",
-        task = {
-            name : task1.name,
-            fields : task1.output_args.name
-        }
-    },
+    )
 
-}
-
-
-
-def mapop_mock(plan,args):
 
     
     
